@@ -6,28 +6,31 @@
 */
 #include <string.h>
 
-void log(String s) {
+void log(String s)
+{
   Serial.println(s);
 }
 
-#define maxMotors 2
+#define maxMotors 4
 
 const int ledPin = LED_BUILTIN; // pin to use for the LED
 
-class Motor {
-  private:
-    String id;
-    int in1;
-    int in2;
-    int ena;
-    byte mode;  // fwd, rev, off
-    byte speed;  // 0 - 255
-  public:
-    void init(String name, int p1, int p2, int ena);
-    void control(byte ctl, int spd);
+class Motor
+{
+private:
+  String id;
+  int in1;
+  int in2;
+  int ena;
+  byte mode;  // fwd, rev, off
+  byte speed; // 0 - 255
+public:
+  void init(String name, int p1, int p2, int ena);
+  void control(byte ctl, int spd);
 };
 
-void Motor::init(String name, int p1, int p2, int en) {
+void Motor::init(String name, int p1, int p2, int en)
+{
   id = name;
   in1 = p1;
   in2 = p2;
@@ -36,14 +39,15 @@ void Motor::init(String name, int p1, int p2, int en) {
   pinMode(in1, OUTPUT);
   pinMode(in2, OUTPUT);
   pinMode(ena, OUTPUT);
-  digitalWrite(in1, LOW);  // turn off
+  digitalWrite(in1, LOW); // turn off
   digitalWrite(in2, LOW);
   analogWrite(ena, 0);
 };
 
-void Motor:: control(byte sw, int bri) {
-  int ctl = (sw) ? ((bri > 50)? 2 : 1) : 0; // 2 fwd, 1 rev, 0 off
-  int spd = 5 * abs(bri - 50) + 5;  // range 55-255
+void Motor::control(byte sw, int bri)
+{
+  int ctl = (sw) ? ((bri > 50) ? 2 : 1) : 0; // 2 fwd, 1 rev, 0 off
+  int spd = 5 * abs(bri - 50) + 5;           // range 55-255
   log(id + ": " + ctl + ", " + spd);
 
   mode = ctl;
@@ -64,17 +68,20 @@ void Motor:: control(byte sw, int bri) {
 
 Motor motors[maxMotors];
 
-void onLiftChange()  {
+void onLiftChange()
+{
   motors[0].control(lift.getSwitch(), int(lift.getBrightness()));
 }
 
-void onMoveChange()  {
+void onMoveChange()
+{
   motors[1].control(move.getSwitch(), int(move.getBrightness()));
 }
 
-void setup() {
+void setup()
+{
   pinMode(LED_BUILTIN, OUTPUT);
-  digitalWrite(LED_BUILTIN, HIGH);   // turn the LED on (HIGH is the voltage level)
+  digitalWrite(LED_BUILTIN, HIGH); // turn the LED on (HIGH is the voltage level)
 
   // Initialize serial and wait for port to open:
   Serial.begin(9600);
@@ -82,7 +89,7 @@ void setup() {
   delay(1500);
 
   motors[0].init("lift", 3, 4, 2);
-  motors[1].init("move", 6, 7, 5); 
+  motors[1].init("move", 6, 7, 5);
   initProperties();
 
   // Connect to Arduino IoT Cloud
@@ -99,6 +106,7 @@ void setup() {
   ArduinoCloud.printDebugInfo();
 }
 
-void loop() {
+void loop()
+{
   ArduinoCloud.update();
 }
